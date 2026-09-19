@@ -23,4 +23,4 @@ pub use error::{Error, Result};
 /// The protocol version is required by the Minecraft protocol. Servers may
 /// ignore it, but some implementations use or reflect the value in the
 /// returned status response.
-pub const PROTOCOL_VERSION: i32 = -1;
+pub const PROTOCOL_VERSION: i32 = 777;
