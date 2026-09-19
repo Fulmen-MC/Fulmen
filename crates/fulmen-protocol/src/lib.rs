@@ -18,5 +18,9 @@ pub mod varint;
 
 pub use error::{Error, Result};
 
-/// The protocol version used by this implementation.
+/// Protocol version sent in the handshake of a status request.
+///
+/// The protocol version is required by the Minecraft protocol. Servers may
+/// ignore it, but some implementations use or reflect the value in the
+/// returned status response.
 pub const PROTOCOL_VERSION: i32 = -1;

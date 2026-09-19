@@ -10,7 +10,6 @@ use fulmen_protocol::status::{PingRequest, PongResponse, StatusRequest, StatusRe
 
 use crate::{Error, Result};
 
-/// Protocol version sent in the handshake of a status request. Servers ignore it.
 pub const STATUS_PROTOCOL_VERSION: i32 = fulmen_protocol::PROTOCOL_VERSION;
 
 /// Result of a server list ping.
