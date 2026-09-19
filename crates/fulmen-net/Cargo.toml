@@ -1,0 +1,13 @@
+[package]
+name = "fulmen-net"
+description = "Connection layer for Fulmen: talks to Minecraft: Java Edition servers"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+fulmen-protocol.workspace = true

@@ -1,26 +1,47 @@
 [workspace]
-resolver = "2"
+resolver = "3"
 members = [
-    "crates/fulmen",
-    "crates/fulmen-auth",
-    "crates/fulmen-client",
-    "crates/fulmen-core",
+    # "crates/fulmen",
+    # "crates/fulmen-auth",
+    # "crates/fulmen-client",
+    # "crates/fulmen-core",
     "crates/fulmen-net",
     "crates/fulmen-protocol",
-    "crates/fulmen-render",
-    "crates/fulmen-world"    
+    # "crates/fulmen-render",
+    # "crates/fulmen-world",
+    "launcher/src-tauri",
+]
+default-members = [
+    # "crates/fulmen",
+    # "crates/fulmen-auth",
+    # "crates/fulmen-client",
+    # "crates/fulmen-core",
+    "crates/fulmen-net",
+    "crates/fulmen-protocol",
+    # "crates/fulmen-render",
+    # "crates/fulmen-world",
 ]
 
 [workspace.package]
-version = "1.0.0+alpha.1"
+version = "0.1.0"
 edition = "2024"
-rust-version = "1.98.1"
-license = "GPL-3.0"
+rust-version = "1.85"
+license = "GPL-3.0-or-later"
+
+[workspace.dependencies]
+fulmen-protocol = { path = "crates/fulmen-protocol" }
+fulmen-net = { path = "crates/fulmen-net" }
+
+[workspace.lints.rust]
+unsafe_code = "deny"
+
+[workspace.lints.clippy]
+all = { level = "warn", priority = -1 }
+
+[profile.dev.package."*"]
+opt-level = 2
 
 [profile.release]
-opt-level = "z"
 lto = true
+strip = "debuginfo"
 codegen-units = 1
-strip = true
-panic = "abort"
-trim-paths = "all"
