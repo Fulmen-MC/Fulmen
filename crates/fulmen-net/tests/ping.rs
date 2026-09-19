@@ -9,7 +9,18 @@ use fulmen_protocol::handshake::{Handshake, NextState};
 use fulmen_protocol::packet::{decode, encode, read_frame};
 use fulmen_protocol::status::{PingRequest, PongResponse, StatusRequest, StatusResponse};
 
-const JSON: &str = r#"{"version":{"name":"fake","protocol":1},"players":{"max":5,"online":0},"description":"test"}"#;
+const JSON: &str = r#"{
+    "version": {
+        "name": "fake",
+        "protocol": 1
+    },
+    "players": {
+        "max": 5,
+        "online": 0,
+        "sample": []
+    },
+    "description": "test"
+}"#;
 
 #[test]
 fn ping_against_fake_server() {
@@ -35,7 +46,11 @@ fn ping_against_fake_server() {
     });
 
     let result = fulmen_net::status::ping("127.0.0.1", port, Duration::from_secs(2)).unwrap();
-    assert_eq!(result.json, JSON);
+    assert_eq!(result.status.version.name, "fake");
+    assert_eq!(result.status.version.protocol, 1);
+    assert_eq!(result.status.players.max, 5);
+    assert_eq!(result.status.players.online, 0);
+    assert_eq!(result.status.players.sample.len(), 0);
     server.join().unwrap();
 }
 

@@ -6,6 +6,7 @@ use std::{fmt, io};
 pub enum Error {
     Io(io::Error),
     Protocol(fulmen_protocol::Error),
+    Json(serde_json::Error),
     /// The host name did not resolve to any address.
     NoAddress,
     /// The pong payload did not match the ping payload.
@@ -22,6 +23,7 @@ impl fmt::Display for Error {
         match self {
             Self::Io(e) => write!(f, "i/o error: {e}"),
             Self::Protocol(e) => write!(f, "protocol error: {e}"),
+            Self::Json(e) => write!(f, "json error: {e}"),
             Self::NoAddress => write!(f, "host did not resolve to any address"),
             Self::PongMismatch { sent, received } => {
                 write!(
@@ -38,6 +40,7 @@ impl std::error::Error for Error {
         match self {
             Self::Io(e) => Some(e),
             Self::Protocol(e) => Some(e),
+            Self::Json(e) => Some(e),
             _ => None,
         }
     }
@@ -52,5 +55,11 @@ impl From<io::Error> for Error {
 impl From<fulmen_protocol::Error> for Error {
     fn from(e: fulmen_protocol::Error) -> Self {
         Self::Protocol(e)
+    }
+}
+
+impl From<serde_json::Error> for Error {
+    fn from(e: serde_json::Error) -> Self {
+        Self::Json(e)
     }
 }

@@ -18,7 +18,7 @@ fn main() {
 
     match fulmen_net::status::ping(&host, port, Duration::from_secs(5)) {
         Ok(result) => {
-            println!("{}", result.json);
+            println!("{:#?}", result.status);
             println!("latency: {} ms", result.latency.as_millis());
         }
         Err(e) => {

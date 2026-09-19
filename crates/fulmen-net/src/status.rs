@@ -7,6 +7,7 @@ use std::time::{Duration, Instant};
 use fulmen_protocol::handshake::{Handshake, NextState};
 use fulmen_protocol::packet::{decode, encode, read_frame};
 use fulmen_protocol::status::{PingRequest, PongResponse, StatusRequest, StatusResponse};
+use serde::{Deserialize, Serialize};
 
 use crate::{Error, Result};
 
@@ -15,10 +16,31 @@ pub const STATUS_PROTOCOL_VERSION: i32 = fulmen_protocol::PROTOCOL_VERSION;
 /// Result of a server list ping.
 #[derive(Debug, Clone)]
 pub struct StatusResult {
-    /// Raw status JSON as sent by the server.
-    pub json: String,
-    /// Round-trip time measured with the ping/pong exchange.
+    pub status: ServerStatus,
     pub latency: Duration,
+}
+
+#[derive(Serialize, Debug, Deserialize, Clone)]
+pub struct ServerStatus {
+    pub version: Version,
+    pub players: Players,
+    pub description: serde_json::Value,
+    pub favicon: Option<String>,
+    #[serde(rename = "enforceSecureChat")]
+    pub enforce_secure_chat: Option<bool>,
+}
+
+#[derive(Serialize, Debug, Deserialize, Clone)]
+pub struct Version {
+    pub name: String,
+    pub protocol: i32,
+}
+
+#[derive(Serialize, Debug, Deserialize, Clone)]
+pub struct Players {
+    pub max: u32,
+    pub online: u32,
+    pub sample: Vec<serde_json::Value>,
 }
 
 /// Pings `host:port` and returns the status JSON and the round-trip latency.
@@ -62,8 +84,10 @@ pub fn ping(host: &str, port: u16, timeout: Duration) -> Result<StatusResult> {
             received: pong.payload,
         });
     }
-    Ok(StatusResult {
-        json: response.json,
-        latency,
-    })
+
+    let status: ServerStatus = serde_json::from_str(&response.json)?;
+
+    let status_result = StatusResult { status, latency };
+
+    Ok(status_result)
 }
