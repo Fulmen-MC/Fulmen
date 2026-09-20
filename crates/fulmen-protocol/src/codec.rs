@@ -55,6 +55,45 @@ pub fn read_string<R: Read>(r: &mut R, max_chars: usize) -> Result<String> {
     Ok(s)
 }
 
+pub fn read_u8<R: Read>(r: &mut R) -> Result<u8> {
+    let mut b = [0u8; 1];
+    r.read_exact(&mut b)?;
+    Ok(b[0])
+}
+
+pub fn write_u8<W: Write>(w: &mut W, v: u8) -> Result<()> {
+    Ok(w.write_all(&[v])?)
+}
+
+pub fn read_bool<R: Read>(r: &mut R) -> Result<bool> {
+    Ok(read_u8(r)? != 0)
+}
+
+pub fn write_bool<W: Write>(w: &mut W, v: bool) -> Result<()> {
+    write_u8(w, u8::from(v))
+}
+
+pub fn read_i32<R: Read>(r: &mut R) -> Result<i32> {
+    let mut b = [0u8; 4];
+    r.read_exact(&mut b)?;
+    Ok(i32::from_be_bytes(b))
+}
+
+pub fn write_i32<W: Write>(w: &mut W, v: i32) -> Result<()> {
+    Ok(w.write_all(&v.to_be_bytes())?)
+}
+
+/// A UUID is sent as 16 bytes, most significant byte first.
+pub fn read_uuid<R: Read>(r: &mut R) -> Result<u128> {
+    let mut b = [0u8; 16];
+    r.read_exact(&mut b)?;
+    Ok(u128::from_be_bytes(b))
+}
+
+pub fn write_uuid<W: Write>(w: &mut W, v: u128) -> Result<()> {
+    Ok(w.write_all(&v.to_be_bytes())?)
+}
+
 /// Writes a VarInt-length-prefixed UTF-8 string of at most `max_chars` characters.
 pub fn write_string<W: Write>(w: &mut W, s: &str, max_chars: usize) -> Result<()> {
     let chars = s.encode_utf16().count();

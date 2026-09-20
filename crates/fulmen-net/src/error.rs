@@ -6,7 +6,6 @@ use std::{fmt, io};
 pub enum Error {
     Io(io::Error),
     Protocol(fulmen_protocol::Error),
-    Json(serde_json::Error),
     /// The host name did not resolve to any address.
     NoAddress,
     /// The pong payload did not match the ping payload.
@@ -14,6 +13,18 @@ pub enum Error {
         sent: i64,
         received: i64,
     },
+    /// The server ended the connection with a reason (JSON text in the login state).
+    Disconnected(String),
+    /// The server wants encryption, which needs online mode (not implemented yet).
+    EncryptionRequired,
+    /// The server sent something we cannot handle yet.
+    Unsupported(&'static str),
+    /// A decompressed packet was larger than allowed or its length field did not match.
+    BadCompression,
+    /// The connection was closed and no more packets can be sent or received.
+    Closed,
+    /// The status response was not valid JSON of the expected shape.
+    Json(serde_json::Error),
 }
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -23,7 +34,6 @@ impl fmt::Display for Error {
         match self {
             Self::Io(e) => write!(f, "i/o error: {e}"),
             Self::Protocol(e) => write!(f, "protocol error: {e}"),
-            Self::Json(e) => write!(f, "json error: {e}"),
             Self::NoAddress => write!(f, "host did not resolve to any address"),
             Self::PongMismatch { sent, received } => {
                 write!(
@@ -31,6 +41,17 @@ impl fmt::Display for Error {
                     "pong payload {received} does not match ping payload {sent}"
                 )
             }
+            Self::Disconnected(reason) => write!(f, "disconnected by server: {reason}"),
+            Self::EncryptionRequired => {
+                write!(
+                    f,
+                    "server requires encryption (online mode is not implemented yet)"
+                )
+            }
+            Self::Unsupported(what) => write!(f, "not supported yet: {what}"),
+            Self::BadCompression => write!(f, "invalid compressed packet"),
+            Self::Closed => write!(f, "connection closed"),
+            Self::Json(e) => write!(f, "invalid status JSON: {e}"),
         }
     }
 }

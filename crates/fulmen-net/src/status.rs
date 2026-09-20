@@ -51,10 +51,7 @@ pub fn ping(host: &str, port: u16, timeout: Duration) -> Result<StatusResult> {
         .to_socket_addrs()?
         .next()
         .ok_or(Error::NoAddress)?;
-    let mut stream = TcpStream::connect_timeout(&addr, timeout)?;
-    stream.set_read_timeout(Some(timeout))?;
-    stream.set_write_timeout(Some(timeout))?;
-    stream.set_nodelay(true)?;
+    let mut stream = connect(&addr.to_string(), timeout)?;
 
     let handshake = Handshake {
         protocol_version: STATUS_PROTOCOL_VERSION,
@@ -90,4 +87,20 @@ pub fn ping(host: &str, port: u16, timeout: Duration) -> Result<StatusResult> {
     let status_result = StatusResult { status, latency };
 
     Ok(status_result)
+}
+
+/// Connects to the first reachable address.
+///
+/// A host name can resolve to several addresses (e.g. `localhost` to `::1` and
+/// `127.0.0.1`), and the server may only listen on one of them, so every address is tried
+/// in order and the last error is returned if none works.
+pub(crate) fn connect(addrs: impl ToSocketAddrs, timeout: Duration) -> Result<TcpStream> {
+    let mut last_err = None;
+    for addr in addrs.to_socket_addrs()? {
+        match TcpStream::connect_timeout(&addr, timeout) {
+            Ok(stream) => return Ok(stream),
+            Err(e) => last_err = Some(e),
+        }
+    }
+    Err(last_err.map_or(Error::NoAddress, Error::Io))
 }

@@ -18,8 +18,14 @@ fn main() {
 
     match fulmen_net::status::ping(&host, port, Duration::from_secs(5)) {
         Ok(result) => {
-            println!("{:#?}", result.status);
-            println!("latency: {} ms", result.latency.as_millis());
+            let s = &result.status;
+            println!(
+                "version:  {} (protocol {})",
+                s.version.name, s.version.protocol
+            );
+            println!("players:  {}/{}", s.players.online, s.players.max);
+            println!("motd:     {}", s.description);
+            println!("latency:  {:?}", result.latency);
         }
         Err(e) => {
             eprintln!("ping to {host}:{port} failed: {e}");

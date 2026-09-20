@@ -12,15 +12,15 @@
 pub mod codec;
 pub mod error;
 pub mod handshake;
+pub mod login;
 pub mod packet;
 pub mod status;
 pub mod varint;
 
 pub use error::{Error, Result};
 
-/// Protocol version sent in the handshake of a status request.
+/// Protocol version of Minecraft: Java Edition that Fulmen currently speaks.
 ///
-/// The protocol version is required by the Minecraft protocol. Servers may
-/// ignore it, but some implementations use or reflect the value in the
-/// returned status response.
+/// Taken from the startup log of the Pumpkin server used for testing; update it together
+/// with the generated protocol data when moving to a new game version.
 pub const PROTOCOL_VERSION: i32 = 777;
